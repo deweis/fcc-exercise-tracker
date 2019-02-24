@@ -25,7 +25,6 @@ app.get('/api/hello', function(req, res) {
 /**
  * Open Stories:
  *
- * 3. I can add an exercise to any user by posting form data userId(_id), description, duration, and optionally date to /api/exercise/add. If no date supplied it will use current date. Returned will the the user object with also with the exercise fields added.
  * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id). Return will be the user object with added array log and count (total exercise count).
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
  *
@@ -52,15 +51,23 @@ function generateId(lngth) {
   return usrId;
 }
 
-//1. I can create a user by posting form data username to /api/exercise/new-user and returned will be an object with username and _id.
+/* lookup a user */
+function userExists(usr) {
+  return users.find(x => x.username === usr);
+}
+
+/*
+ * 1. I can create a user by posting form data username to /api/exercise/new-user and returned will be an object with username and _id.
+ */
+
 app.post('/api/exercise/new-user', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
 
-  const userExists = users.find(x => x.username === req.body.username);
+  const usr = userExists(req.body.username);
 
   // return existing user if already created
-  if (userExists) return res.json(userExists);
+  if (usr) return res.json(usr);
 
   // else create a new one
   const user = { username: req.body.username, _id: generateId(8) };
@@ -70,11 +77,39 @@ app.post('/api/exercise/new-user', function(req, res) {
   return res.json(user);
 });
 
-// 2. I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
+/*
+ * 2. I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
+ */
 app.get('/api/exercise/users', function(req, res) {
   console.log('----------------------- GET REQUEST -----------------------');
   console.log('Request: GET users');
   return res.json(users);
+});
+
+/*
+ * 3. I can add an exercise to any user by posting form data userId(_id), description, duration, and optionally date to /api/exercise/add.
+ *    If no date supplied it will use current date. Returned will the the user object with also with the exercise fields added.
+ */
+app.post('/api/exercise/add', function(req, res) {
+  console.log('----------------------- POST REQUEST -----------------------');
+  console.log('Request: POST add exercise: ', req.body);
+  const usr = userExists(req.body.userId);
+
+  if (!usr) {
+    return res.json('user does not exist');
+  } else {
+    const result = {
+      username: usr.username,
+      _id: usr._id,
+      description: req.body.description,
+      duration: req.body.duration,
+      date: req.body.date
+    };
+
+    // Record the exercise in db
+    // Check Date format and add current date if empty
+    return res.json(result);
+  }
 });
 
 // Not found middleware
