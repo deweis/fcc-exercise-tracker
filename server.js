@@ -31,29 +31,40 @@ app.get('/api/hello', function(req, res) {
  *
  */
 
+let users = [];
+
+/* Generate an Id with random letters */
+function generateId(lngth) {
+  const letters =
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let usrId = '';
+
+  for (let i = 0; i < lngth; i++) {
+    usrId += letters.charAt(
+      Math.floor(Math.random() * (letters.length - 1 + 1))
+    );
+  }
+
+  return usrId;
+}
+
 //1. I can create a user by posting form data username to /api/exercise/new-user and returned will be an object with username and _id.
 app.post('/api/exercise/new-user', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
-  return res.json({ username: 'den', _id: 'aiCsi' });
+
+  const user = { username: req.body.username, _id: generateId(8) };
+
+  users.push(user);
+
+  return res.json(user);
 });
 
 // 2. I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
 app.get('/api/exercise/users', function(req, res) {
   console.log('----------------------- GET REQUEST -----------------------');
   console.log('Request: GET users');
-  const arrTmp = [
-    {
-      username: 'den',
-      _id: 'aiCsi'
-    },
-    {
-      username: 'den2',
-      _id: 'aiCsi2'
-    }
-  ];
-
-  return res.json(arrTmp);
+  return res.json(users);
 });
 
 // Not found middleware
