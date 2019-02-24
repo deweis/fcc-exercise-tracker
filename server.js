@@ -31,7 +31,11 @@ app.get('/api/hello', function(req, res) {
  *
  */
 
-let users = [];
+let users = [
+  { username: 'gen', _id: 'cJ16IC5R' },
+  { username: 'usermi', _id: 'LbtGOYGL' },
+  { username: 'usersden', _id: 'psMZmlim' }
+];
 
 /* Generate an Id with random letters */
 function generateId(lngth) {
@@ -53,6 +57,12 @@ app.post('/api/exercise/new-user', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
 
+  const userExists = users.find(x => x.username === req.body.username);
+
+  // return existing user if already created
+  if (userExists) return res.json(userExists);
+
+  // else create a new one
   const user = { username: req.body.username, _id: generateId(8) };
 
   users.push(user);
