@@ -52,14 +52,14 @@ function generateId(lngth) {
 }
 
 /* lookup a user */
-function userExists(usr) {
-  return users.find(x => x.username === usr);
+function userExists(usr, usr_id) {
+  if (usr) return users.find(x => x.username === usr);
+  return users.find(x => x._id === usr_id);
 }
 
 /*
  * 1. I can create a user by posting form data username to /api/exercise/new-user and returned will be an object with username and _id.
  */
-
 app.post('/api/exercise/new-user', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
@@ -72,6 +72,7 @@ app.post('/api/exercise/new-user', function(req, res) {
   // else create a new one
   const user = { username: req.body.username, _id: generateId(8) };
 
+  // add the user to the db
   users.push(user);
 
   return res.json(user);
@@ -93,7 +94,9 @@ app.get('/api/exercise/users', function(req, res) {
 app.post('/api/exercise/add', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST add exercise: ', req.body);
-  const usr = userExists(req.body.userId);
+
+  // check if the user exists in the db
+  const usr = userExists(null, req.body.userId);
 
   if (!usr) {
     return res.json('user does not exist');
