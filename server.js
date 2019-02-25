@@ -31,9 +31,9 @@ app.get('/api/hello', function(req, res) {
  */
 
 let users = [
-  { username: 'gen', _id: 'cJ16IC5R' },
-  { username: 'usermi', _id: 'LbtGOYGL' },
-  { username: 'usersden', _id: 'psMZmlim' }
+  { _id: 'cJ16IC5R', username: 'gen' },
+  { _id: 'LbtGOYGL', username: 'usermi' },
+  { _id: 'psMZmlim', username: 'usersden' }
 ];
 
 let exercises = [
@@ -108,7 +108,7 @@ app.post('/api/exercise/add', function(req, res) {
   const usr = userExists(null, req.body.userId);
 
   if (!usr) {
-    return res.json('user does not exist');
+    res.send('Please add a valid user ID');
   } else {
     // check and format the date resp. add current date if empty
     let dateInput =
@@ -130,6 +130,7 @@ app.post('/api/exercise/add', function(req, res) {
 
     // Record the exercise in db
     exercises.push(result);
+    console.log(exercises);
 
     return res.json(result);
   }
