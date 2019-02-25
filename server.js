@@ -36,6 +36,15 @@ let users = [
   { username: 'usersden', _id: 'psMZmlim' }
 ];
 
+let exercises = [
+  {
+    _id: 'psMZmlim',
+    description: 'another exercise',
+    duration: 50,
+    date: '2018-20-22'
+  }
+];
+
 /* Generate an Id with random letters */
 function generateId(lngth) {
   const letters =
@@ -110,6 +119,8 @@ app.post('/api/exercise/add', function(req, res) {
     };
 
     // Record the exercise in db
+    exercises.push(result);
+
     // Check Date format and add current date if empty
     return res.json(result);
   }
