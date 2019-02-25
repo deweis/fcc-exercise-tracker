@@ -110,18 +110,27 @@ app.post('/api/exercise/add', function(req, res) {
   if (!usr) {
     return res.json('user does not exist');
   } else {
+    // check and format the date resp. add current date if empty
+    let dateInput =
+      req.body.date === ''
+        ? new Date().toDateString()
+        : new Date(req.body.date).toDateString();
+    if (dateInput.toString() === 'Invalid Date')
+      res.send(
+        'Please add a valid date (yyyy-mm-dd) or let it empty for adding todays date'
+      );
+
     const result = {
-      username: usr.username,
       _id: usr._id,
+      username: usr.username,
       description: req.body.description,
       duration: Number(req.body.duration),
-      date: req.body.date
+      date: dateInput
     };
 
     // Record the exercise in db
     exercises.push(result);
 
-    // Check Date format and add current date if empty
     return res.json(result);
   }
 });
