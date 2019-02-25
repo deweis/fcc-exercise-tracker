@@ -114,7 +114,7 @@ app.post('/api/exercise/add', function(req, res) {
       username: usr.username,
       _id: usr._id,
       description: req.body.description,
-      duration: req.body.duration,
+      duration: Number(req.body.duration),
       date: req.body.date
     };
 
