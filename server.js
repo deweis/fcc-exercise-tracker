@@ -25,7 +25,6 @@ app.get('/api/hello', function(req, res) {
 /**
  * Open Stories:
  *
- * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id). Return will be the user object with added array log and count (total exercise count).
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
  *
  */
@@ -41,7 +40,19 @@ let exercises = [
     _id: 'psMZmlim',
     description: 'another exercise',
     duration: 50,
-    date: '2018-20-22'
+    date: 'Mon Jan 21 2019'
+  },
+  {
+    _id: 'psMZmlim',
+    description: '2nd exercise',
+    duration: 20,
+    date: 'Tue Jan 22 2019'
+  },
+  {
+    _id: 'psMZmlim',
+    description: '3rd exercise',
+    duration: 20,
+    date: 'Wed Jan 23 2019'
   }
 ];
 
@@ -130,9 +141,39 @@ app.post('/api/exercise/add', function(req, res) {
 
     // Record the exercise in db
     exercises.push(result);
-    console.log(exercises);
 
     return res.json(result);
+  }
+});
+
+/*
+ * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
+ *    Returned will be the user object with added array log and count (total exercise count).
+ */
+app.get('/api/exercise/log/', function(req, res) {
+  console.log('----------------------- GET REQUEST -----------------------');
+  console.log('Request: GET log of user: ', req.query.userId);
+
+  // check if the user exists in the db
+  const usr = userExists(null, req.query.userId);
+
+  if (!usr) {
+    res.send('Ooops, this user does not exist - please add a valid user');
+  } else {
+    const result = exercises
+      .filter(x => x._id === usr._id)
+      .map(x => ({
+        description: x.description,
+        duration: x.duration,
+        date: x.date
+      }));
+
+    return res.json({
+      _id: usr._id,
+      username: usr.username,
+      count: result.length,
+      log: result
+    });
   }
 });
 
