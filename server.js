@@ -22,13 +22,6 @@ app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-/**
- * Open Stories:
- *
- * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
- *
- */
-
 let users = [
   { _id: 'cJ16IC5R', username: 'gen' },
   { _id: 'LbtGOYGL', username: 'usermi' },
@@ -44,8 +37,8 @@ let exercises = [
   },
   {
     _id: 'psMZmlim',
-    description: '2nd exercise',
-    duration: 20,
+    description: 'my exercise',
+    duration: 23,
     date: 'Tue Jan 22 2019'
   },
   {
@@ -53,6 +46,12 @@ let exercises = [
     description: '3rd exercise',
     duration: 20,
     date: 'Wed Jan 23 2019'
+  },
+  {
+    _id: 'psMZmlim',
+    description: '2nd exercise',
+    duration: 20,
+    date: 'Tue Jan 22 2019'
   }
 ];
 
@@ -100,6 +99,7 @@ app.post('/api/exercise/new-user', function(req, res) {
 
 /*
  * 2. I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/users
  */
 app.get('/api/exercise/users', function(req, res) {
   console.log('----------------------- GET REQUEST -----------------------');
@@ -149,6 +149,10 @@ app.post('/api/exercise/add', function(req, res) {
 /*
  * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
  *    Returned will be the user object with added array log and count (total exercise count).
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=psMZmlim
+ *
+ * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=psMZmlim&from=2019-01-22&to=2019-01-22&limit=1
  */
 app.get('/api/exercise/log/', function(req, res) {
   console.log('----------------------- GET REQUEST -----------------------');
@@ -160,13 +164,37 @@ app.get('/api/exercise/log/', function(req, res) {
   if (!usr) {
     res.send('Ooops, this user does not exist - please add a valid user');
   } else {
-    const result = exercises
+    let result = exercises
       .filter(x => x._id === usr._id)
       .map(x => ({
         description: x.description,
         duration: x.duration,
-        date: x.date
+        date: new Date(x.date)
       }));
+
+    // Apply Date-from Filter
+    if (req.query.from) {
+      console.log('Filter exercises from: ', req.query.from);
+      const fromFilter = new Date(req.query.from);
+      if (fromFilter.toString() !== 'Invalid Date') {
+        result = result.filter(x => x.date >= fromFilter);
+      }
+    }
+
+    // Apply Date-to Filter
+    if (req.query.to) {
+      console.log('Filter exercises to: ', req.query.to);
+      const toFilter = new Date(req.query.to);
+      if (toFilter.toString() !== 'Invalid Date') {
+        result = result.filter(x => x.date <= toFilter);
+      }
+    }
+
+    // Apply Results-limit Filter
+    if (req.query.limit) {
+      console.log('Filter exercises limit: ', req.query.limit);
+      result = result.slice(0, req.query.limit);
+    }
 
     return res.json({
       _id: usr._id,
