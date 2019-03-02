@@ -5,7 +5,18 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const mongoose = require('mongoose');
-// mongoose.connect(process.env.MLAB_URI || 'mongodb://localhost/exercise-track');
+mongoose.connect(process.env.MONGO_URI);
+
+// Schemas are building block for Models. They can be nested to create complex models
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  id: { type: String, required: true },
+  username: String
+});
+
+// A model allows you to create instances of your objects, called documents.
+const User = mongoose.model('User', userSchema);
 
 app.use(cors());
 
@@ -83,18 +94,32 @@ app.post('/api/exercise/new-user', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
 
-  const usr = userExists(req.body.username);
+  /* lookup a user in mongoDB */
+  User.find({ username: req.body.username }, function(err, docs) {
+    if (err) return console.error('error: ', err);
+    console.log('docs: ', docs);
 
-  // return existing user if already created
-  if (usr) return res.json(usr);
+    // if user exists, return it
+    if (docs.length > 0) {
+      console.log('The requested user exists already in the db..');
+      return res.json({
+        _id: docs[0].id,
+        username: docs[0].username
+      });
+      // else create a new one
+    } else {
+      const user = new User({ username: req.body.username, id: generateId(8) });
 
-  // else create a new one
-  const user = { username: req.body.username, _id: generateId(8) };
-
-  // add the user to the db
-  users.push(user);
-
-  return res.json(user);
+      user.save(function(err, doc) {
+        if (err) return console.error(err);
+        console.log(`Stored "${doc.username}" in user collection.`);
+        return res.json({
+          _id: doc.id,
+          username: doc.username
+        });
+      });
+    }
+  });
 });
 
 /*
