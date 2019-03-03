@@ -129,7 +129,11 @@ app.post('/api/exercise/new-user', function(req, res) {
 app.get('/api/exercise/users', function(req, res) {
   console.log('----------------------- GET REQUEST -----------------------');
   console.log('Request: GET users');
-  return res.json(users);
+  User.find({}, function(err, docs) {
+    if (err) return console.error('error: ', err);
+    const users = docs.map(x => ({ _id: x.id, username: x.username }));
+    return res.json(users);
+  });
 });
 
 /*
