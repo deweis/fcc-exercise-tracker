@@ -10,10 +10,13 @@ mongoose.connect(process.env.MONGO_URI);
 // Schemas are building block for Models. They can be nested to create complex models
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-  id: { type: String, required: true },
-  username: String
-});
+const userSchema = new Schema(
+  {
+    _id: { type: String, required: true },
+    username: String
+  },
+  { autoIndex: false }
+);
 
 // A model allows you to create instances of your objects, called documents.
 const User = mongoose.model('User', userSchema);
@@ -103,18 +106,21 @@ app.post('/api/exercise/new-user', function(req, res) {
     if (docs.length > 0) {
       console.log('The requested user exists already in the db..');
       return res.json({
-        _id: docs[0].id,
+        _id: docs[0]._id,
         username: docs[0].username
       });
       // else create a new one
     } else {
-      const user = new User({ username: req.body.username, id: generateId(8) });
+      const user = new User({
+        username: req.body.username,
+        _id: generateId(8)
+      });
 
       user.save(function(err, doc) {
         if (err) return console.error(err);
         console.log(`Stored "${doc.username}" in user collection.`);
         return res.json({
-          _id: doc.id,
+          _id: doc._id,
           username: doc.username
         });
       });
@@ -131,7 +137,7 @@ app.get('/api/exercise/users', function(req, res) {
   console.log('Request: GET users');
   User.find({}, function(err, docs) {
     if (err) return console.error('error: ', err);
-    const users = docs.map(x => ({ _id: x.id, username: x.username }));
+    const users = docs.map(x => ({ _id: x._id, username: x.username }));
     return res.json(users);
   });
 });
