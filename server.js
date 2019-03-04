@@ -18,8 +18,16 @@ const userSchema = new Schema(
   { autoIndex: false }
 );
 
+const exerciseSchema = new Schema({
+  userId: { type: String, required: true },
+  description: String,
+  duration: Number,
+  date: String
+});
+
 // A model allows you to create instances of your objects, called documents.
 const User = mongoose.model('User', userSchema);
+const Exercise = mongoose.model('Exercise', exerciseSchema);
 
 app.use(cors());
 
@@ -148,37 +156,54 @@ app.get('/api/exercise/users', function(req, res) {
  */
 app.post('/api/exercise/add', function(req, res) {
   console.log('----------------------- POST REQUEST -----------------------');
-  console.log('Request: POST add exercise: ', req.body);
+  console.log('Request: POST add exercise');
 
-  // check if the user exists in the db
-  const usr = userExists(null, req.body.userId);
+  User.findById(req.body.userId, function(err, user) {
+    if (err) return console.error('error: ', err);
+    console.log(`User: ${user}`);
 
-  if (!usr) {
-    res.send('Please add a valid user ID');
-  } else {
-    // check and format the date resp. add current date if empty
-    let dateInput =
-      req.body.date === ''
-        ? new Date().toDateString()
-        : new Date(req.body.date).toDateString();
-    if (dateInput.toString() === 'Invalid Date')
-      res.send(
-        'Please add a valid date (yyyy-mm-dd) or let it empty for adding todays date'
-      );
+    if (!user) {
+      console.log('Aborted: User does not exist');
+      return res.send('Please add a valid user ID');
+    } else {
+      // check and format the date resp. add current date if empty
+      let dateInput =
+        req.body.date === ''
+          ? new Date().toDateString()
+          : new Date(req.body.date).toDateString();
+      if (dateInput.toString() === 'Invalid Date') {
+        console.log('Aborted: Invalid Date');
+        return res.send(
+          'Please add a valid date (yyyy-mm-dd) or let it empty for adding todays date'
+        );
+      }
 
-    const result = {
-      _id: usr._id,
-      username: usr.username,
-      description: req.body.description,
-      duration: Number(req.body.duration),
-      date: dateInput
-    };
+      const toDb = {
+        userId: user._id,
+        description: req.body.description,
+        duration: Number(req.body.duration),
+        date: dateInput
+      };
 
-    // Record the exercise in db
-    exercises.push(result);
+      const newDoc = new Exercise(toDb);
 
-    return res.json(result);
-  }
+      newDoc.save(function(err, doc) {
+        if (err) return console.error(err);
+
+        console.log(
+          `Saved exercise for user "${doc.userId}" in the collection`
+        );
+
+        return res.json({
+          _id: doc.userId,
+          username: user.username,
+          description: doc.description,
+          duration: doc.duration,
+          date: doc.date
+        });
+      });
+    }
+  });
 });
 
 /*
