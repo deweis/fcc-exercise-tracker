@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 });
 
 // your first API endpoint...
-app.get('/api/hello', function(req, res) {
+app.get('/api/hello', (req, res) => {
   res.json({ greeting: 'hello API' });
 });
 
@@ -101,12 +101,12 @@ function userExists(usr, usr_id) {
 /*
  * 1. I can create a user by posting form data username to /api/exercise/new-user and returned will be an object with username and _id.
  */
-app.post('/api/exercise/new-user', function(req, res) {
+app.post('/api/exercise/new-user', (req, res) => {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST new user: ', req.body);
 
   /* lookup a user in mongoDB */
-  User.find({ username: req.body.username }, function(err, docs) {
+  User.find({ username: req.body.username }, (err, docs) => {
     if (err) return console.error('error: ', err);
     console.log('docs: ', docs);
 
@@ -124,7 +124,7 @@ app.post('/api/exercise/new-user', function(req, res) {
         _id: generateId(8)
       });
 
-      user.save(function(err, doc) {
+      user.save((err, doc) => {
         if (err) return console.error(err);
         console.log(`Stored "${doc.username}" in user collection.`);
         return res.json({
@@ -140,10 +140,10 @@ app.post('/api/exercise/new-user', function(req, res) {
  * 2. I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
  *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/users
  */
-app.get('/api/exercise/users', function(req, res) {
+app.get('/api/exercise/users', (req, res) => {
   console.log('----------------------- GET REQUEST -----------------------');
   console.log('Request: GET users');
-  User.find({}, function(err, docs) {
+  User.find({}, (err, docs) => {
     if (err) return console.error('error: ', err);
     const users = docs.map(x => ({ _id: x._id, username: x.username }));
     return res.json(users);
@@ -154,13 +154,13 @@ app.get('/api/exercise/users', function(req, res) {
  * 3. I can add an exercise to any user by posting form data userId(_id), description, duration, and optionally date to /api/exercise/add.
  *    If no date supplied it will use current date. Returned will the the user object with also with the exercise fields added.
  */
-app.post('/api/exercise/add', function(req, res) {
+app.post('/api/exercise/add', (req, res) => {
   console.log('----------------------- POST REQUEST -----------------------');
   console.log('Request: POST add exercise');
 
-  User.findById(req.body.userId, function(err, user) {
+  User.findById(req.body.userId, (err, user) => {
     if (err) return console.error('error: ', err);
-    console.log(`User: ${user}`);
+    console.log(`User: ${user._id}`);
 
     if (!user) {
       console.log('Aborted: User does not exist');
@@ -192,7 +192,7 @@ app.post('/api/exercise/add', function(req, res) {
 
       const newDoc = new Exercise(toDb);
 
-      newDoc.save(function(err, doc) {
+      newDoc.save((err, doc) => {
         if (err) return console.error(err);
 
         console.log(
