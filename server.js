@@ -39,44 +39,6 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-// your first API endpoint...
-app.get('/api/hello', (req, res) => {
-  res.json({ greeting: 'hello API' });
-});
-
-let users = [
-  { _id: 'cJ16IC5R', username: 'gen' },
-  { _id: 'LbtGOYGL', username: 'usermi' },
-  { _id: 'psMZmlim', username: 'usersden' }
-];
-
-let exercises = [
-  {
-    _id: 'psMZmlim',
-    description: 'another exercise',
-    duration: 50,
-    date: 'Mon Jan 21 2019'
-  },
-  {
-    _id: 'psMZmlim',
-    description: 'my exercise',
-    duration: 23,
-    date: 'Tue Jan 22 2019'
-  },
-  {
-    _id: 'psMZmlim',
-    description: '3rd exercise',
-    duration: 20,
-    date: 'Wed Jan 23 2019'
-  },
-  {
-    _id: 'psMZmlim',
-    description: '2nd exercise',
-    duration: 20,
-    date: 'Tue Jan 22 2019'
-  }
-];
-
 /* Generate an Id with random letters */
 function generateId(lngth) {
   const letters =
@@ -90,12 +52,6 @@ function generateId(lngth) {
   }
 
   return usrId;
-}
-
-/* lookup a user */
-function userExists(usr, usr_id) {
-  if (usr) return users.find(x => x.username === usr);
-  return users.find(x => x._id === usr_id);
 }
 
 /*
@@ -128,8 +84,8 @@ app.post('/api/exercise/new-user', (req, res) => {
         if (err) return console.error(err);
         console.log(`Stored "${doc.username}" in user collection.`);
         return res.json({
-          _id: doc._id,
-          username: doc.username
+          username: doc.username,
+          _id: doc._id
         });
       });
     }
