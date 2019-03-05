@@ -217,7 +217,7 @@ app.post('/api/exercise/add', (req, res) => {
  *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=SYAsrq30
  *
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
- *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=AMuknOb7&from=2019-02-01&to=2019-03-01&limit=1
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=AMuknOb7&from=2019-02-01&to=2019-03-01&limit=2
  */
 app.get('/api/exercise/log/', (req, res) => {
   console.log('----------------------- GET REQUEST -----------------------');
@@ -265,6 +265,12 @@ app.get('/api/exercise/log/', (req, res) => {
           if (toFilter.toString() !== 'Invalid Date') {
             result = result.filter(x => new Date(x.date) <= toFilter);
           }
+        }
+
+        // Apply Results-limit Filter
+        if (req.query.limit) {
+          console.log('Filter exercises limit: ', req.query.limit);
+          result = result.slice(0, req.query.limit);
         }
 
         return res.json({
