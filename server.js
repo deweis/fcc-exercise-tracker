@@ -171,7 +171,10 @@ app.post('/api/exercise/add', function(req, res) {
         req.body.date === ''
           ? new Date().toDateString()
           : new Date(req.body.date).toDateString();
-      if (dateInput.toString() === 'Invalid Date') {
+      if (
+        dateInput.toString() === 'Invalid Date' ||
+        (req.body.date !== '' && req.body.date.length !== 10)
+      ) {
         console.log('Aborted: Invalid Date');
         return res.send(
           'Please add a valid date (yyyy-mm-dd) or let it empty for adding todays date'
