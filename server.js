@@ -214,7 +214,7 @@ app.post('/api/exercise/add', (req, res) => {
 /*
  * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
  *    Returned will be the user object with added array log and count (total exercise count).
- *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=SYAsrq30
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=AMuknOb7
  *
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
  *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=AMuknOb7&from=2019-02-01&to=2019-03-01&limit=2
@@ -236,8 +236,6 @@ app.get('/api/exercise/log/', (req, res) => {
       let query = {
         userId: user._id
       };
-
-      console.log('Query: ', query);
 
       // Get Exercises from DB
       Exercise.find(query, (err, exercises) => {
@@ -283,54 +281,6 @@ app.get('/api/exercise/log/', (req, res) => {
     }
   });
 });
-/*
-  // check if the user exists in the db
-  const usr = userExists(null, req.query.userId);
-
-  if (!usr) {
-    res.send('Ooops, this user does not exist - please add a valid user');
-  } else {
-    let result = exercises
-      .filter(x => x._id === usr._id)
-      .map(x => ({
-        description: x.description,
-        duration: x.duration,
-        date: new Date(x.date)
-      }));
-
-    // Apply Date-from Filter
-    if (req.query.from) {
-      console.log('Filter exercises from: ', req.query.from);
-      const fromFilter = new Date(req.query.from);
-      if (fromFilter.toString() !== 'Invalid Date') {
-        result = result.filter(x => x.date >= fromFilter);
-      }
-    }
-
-    // Apply Date-to Filter
-    if (req.query.to) {
-      console.log('Filter exercises to: ', req.query.to);
-      const toFilter = new Date(req.query.to);
-      if (toFilter.toString() !== 'Invalid Date') {
-        result = result.filter(x => x.date <= toFilter);
-      }
-    }
-
-    // Apply Results-limit Filter
-    if (req.query.limit) {
-      console.log('Filter exercises limit: ', req.query.limit);
-      result = result.slice(0, req.query.limit);
-    }
-
-    return res.json({
-      _id: usr._id,
-      username: usr.username,
-      count: result.length,
-      log: result
-    });
-  }
-  
-*/
 
 // Not found middleware
 app.use((req, res, next) => {
