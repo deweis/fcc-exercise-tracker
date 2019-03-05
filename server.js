@@ -214,10 +214,10 @@ app.post('/api/exercise/add', (req, res) => {
 /*
  * 4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
  *    Returned will be the user object with added array log and count (total exercise count).
- *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=psMZmlim
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=SYAsrq30
  *
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
- *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=psMZmlim&from=2019-01-22&to=2019-01-22&limit=1
+ *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=AMuknOb7&from=2019-02-01&to=2019-01-22&limit=1
  */
 app.get('/api/exercise/log/', (req, res) => {
   console.log('----------------------- GET REQUEST -----------------------');
@@ -248,6 +248,15 @@ app.get('/api/exercise/log/', (req, res) => {
           duration: exercise.duration,
           date: exercise.date
         }));
+
+        // Apply Date-from Filter
+        if (req.query.from) {
+          console.log('Filter exercises from: ', req.query.from);
+          const fromFilter = new Date(req.query.from);
+          if (fromFilter.toString() !== 'Invalid Date') {
+            result = result.filter(x => new Date(x.date) >= fromFilter);
+          }
+        }
 
         return res.json({
           _id: user._id,
