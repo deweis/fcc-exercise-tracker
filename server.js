@@ -164,7 +164,9 @@ app.post('/api/exercise/add', function(req, res) {
 
     if (!user) {
       console.log('Aborted: User does not exist');
-      return res.send('Please add a valid user ID');
+      return res.send(
+        'Ooops, this user does not exist - please add a valid user ID'
+      );
     } else {
       // check and format the date resp. add current date if empty
       let dateInput =
@@ -217,10 +219,47 @@ app.post('/api/exercise/add', function(req, res) {
  * 5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
  *    Example: https://fcc-exercise-tracker-dw.glitch.me/api/exercise/log?userId=psMZmlim&from=2019-01-22&to=2019-01-22&limit=1
  */
-app.get('/api/exercise/log/', function(req, res) {
+app.get('/api/exercise/log/', (req, res) => {
   console.log('----------------------- GET REQUEST -----------------------');
   console.log('Request: GET log of user: ', req.query.userId);
 
+  // Get the User from DB
+  User.findById(req.query.userId, (err, user) => {
+    if (err) return console.error('error: ', err);
+
+    if (!user) {
+      console.log('Aborted: User does not exist');
+      return res.send(
+        'Ooops, this user does not exist - please add a valid user ID'
+      );
+    } else {
+      let query = {
+        userId: user._id
+      };
+
+      console.log('Query: ', query);
+
+      // Get Exercises from DB
+      Exercise.find(query, (err, exercises) => {
+        if (err) return console.error('error: ', err);
+
+        let result = exercises.map(exercise => ({
+          description: exercise.description,
+          duration: exercise.duration,
+          date: exercise.date
+        }));
+
+        return res.json({
+          _id: user._id,
+          username: user.username,
+          count: result.length,
+          log: result
+        });
+      });
+    }
+  });
+});
+/*
   // check if the user exists in the db
   const usr = userExists(null, req.query.userId);
 
@@ -266,7 +305,8 @@ app.get('/api/exercise/log/', function(req, res) {
       log: result
     });
   }
-});
+  
+*/
 
 // Not found middleware
 app.use((req, res, next) => {
